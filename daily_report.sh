@@ -8,14 +8,17 @@ MM=$(date "+%m")
 DD=$(date "+%d")
 
 # 日本語の曜日を取得
-DOW=$(LC_ALL=ja_JP.UTF-8 date "+%a")
+DOW=$(date "+%a")
+
 
 # ディレクトリが存在しなければ作成
-mkdir -p "./$YYYY$MM"
+if [ ! -d "./$YYYY$MM" ]; then
+    mkdir "./$YYYY$MM"
+fi
 
 # 新しいファイルを作成
 NEWFILE="./$YYYY$MM/$DD.md"
-cp $TEMPLATE $NEWFILE
+cp "$TEMPLATE" "$NEWFILE"
 
 # 前日のファイルを見つける
 PREV_DAY=$(date -v-1d "+%d")
@@ -32,3 +35,6 @@ fi
 perl -C -i -pe "s/西暦 年 月\/日(曜日)/$YYYY 年 $MM月\/$DD日($DOW)/" "$NEWFILE"
 # ファイルに前日の「Total: h」を書き込む
 perl -C -i -pe "s/Total: h/$PREV_TOTAL/" "$NEWFILE"
+
+# ファイルを開く
+open "$NEWFILE"
