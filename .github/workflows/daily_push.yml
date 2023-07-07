@@ -14,16 +14,17 @@ jobs:
       - name: Slack Notification
         env:
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
-        # pushしたファイルのURLをSlackに通知する
         run: |
-          CHANGED_FILES=$(git diff-tree --no-commit-id --name-only -r HEAD HEAD~1 | grep '\.md$')
-          echo "CHANGED_FILES: ${CHANGED_FILES}"
-          FILE_LINKS=""
-          for file in $CHANGED_FILES; do
-            FILE_LINKS+="https://github.com/${GITHUB_REPOSITORY}/blob/${GITHUB_SHA}/${file}\n"
-          done
-          if [ ! -z "$FILE_LINKS" ]; then
-            TODAY=$(date +"%Y/%m/%d")
-            PAYLOAD=$(printf '{"text": "お疲れ様です！%sの日報です:\\n%s"}' "$TODAY" "$FILE_LINKS")
-            curl -X POST -H 'Content-type: application/json' --data "${PAYLOAD}" $SLACK_WEBHOOK
+          if git rev-parse --verify HEAD~1 >/dev/null 2>&1; then
+            CHANGED_FILES=$(git diff-tree --no-commit-id --name-only -r HEAD HEAD~1 | grep '\.md$')
+            echo "CHANGED_FILES: ${CHANGED_FILES}"
+            FILE_LINKS=""
+            for file in $CHANGED_FILES; do
+              FILE_LINKS+="https://github.com/${GITHUB_REPOSITORY}/blob/${GITHUB_SHA}/${file}\n"
+            done
+            if [ ! -z "$FILE_LINKS" ]; then
+              TODAY=$(date +"%Y/%m/%d")
+              PAYLOAD=$(printf '{"text": "お疲れ様です！%sの日報です:\\n%s"}' "$TODAY" "$FILE_LINKS")
+              curl -X POST -H 'Content-type: application/json' --data "${PAYLOAD}" $SLACK_WEBHOOK
+            fi
           fi
