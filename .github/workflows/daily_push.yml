@@ -3,7 +3,7 @@ name: Slack Daily Push
 on:
   push:
     paths:
-      - "daily_report/**/*.md"
+      - "202307/*.md"
 
 jobs:
   build:
